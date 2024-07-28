@@ -1,8 +1,20 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Poppins } from "next/font/google";
+import localFont from 'next/font/local'
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const poppins = Poppins({
+    weight: ["200", "400", "600", "800"], 
+    subsets: ["latin"],
+    variable: "--font-poppins",
+});
+
+const bauhausStdMedium = localFont({
+    src: "../assets/fonts/BauhausStdMedium.otf",
+    display: "swap",
+    weight: "600",
+    variable: "--font-bauhaus-std-medium",
+})
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -16,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={`${poppins.variable} ${bauhausStdMedium.variable}`}>{children}</body>
     </html>
   );
 }
