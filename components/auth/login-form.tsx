@@ -13,8 +13,19 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginSchema } from "@/validationSchema";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { FormError } from "./form-error";
+import { FormSuccess } from "./form-success";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export function LoginForm() {
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined,
+  );
+  const [successMessage, setSuccessMessage] = useState<string | undefined>(
+    undefined,
+  );
+  const router = useRouter();
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
@@ -23,8 +34,31 @@ export function LoginForm() {
     },
   });
 
-  function onSubmit(data: z.infer<typeof LoginSchema>) {
-    console.log(data);
+  async function onSubmit(data: z.infer<typeof LoginSchema>) {
+    setErrorMessage(undefined);
+    setSuccessMessage(undefined);
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}v1/api/auth/login`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+        }),
+      },
+    );
+
+    const result = await response.json();
+
+    if (!result.success) {
+      setErrorMessage(result.message);
+    } else {
+      setSuccessMessage(result.message);
+      router.replace("/dashboard");
+    }
   }
 
   return (
@@ -76,6 +110,8 @@ export function LoginForm() {
               )}
             />
           </div>
+          <FormError message={errorMessage} />
+          <FormSuccess message={successMessage} />
           <Button
             type="submit"
             variant="default"
